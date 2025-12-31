@@ -17,11 +17,10 @@
   "license": "MIT",
   "frameworks": "*",
   "platforms": "*",
-    "build": {
-    "includeDir": "src",
+  "build": {
+    "includeDir": "src/include",
     "srcFilter": [
-      "+<src/>",
-      "+<include/>"
+      "+<src/>"
     ]
   },
   "dependencies": [
