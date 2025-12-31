@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include "hal/uart_types.h"
-#include "Defines.h"
+#include "IOT_Defines.h"
 
 std::string inline formatDuration(unsigned long milliseconds) {
    const unsigned long MS_PER_SECOND = 1000;

@@ -17,7 +17,7 @@
 #include "time.h"
 #include <sstream>
 #include <string>
-#include "Defines.h"
+#include "IOT_Defines.h"
 #include "Enumerations.h"
 #include "OTA.h"
 #include "IOTServiceInterface.h"
