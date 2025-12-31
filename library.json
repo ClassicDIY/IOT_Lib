@@ -20,7 +20,8 @@
   "build": {
     "includeDir": "src/include",
     "srcFilter": [
-      "+<src/>"
+      "+<src/>",
+      "+<src/include/>"
     ]
   },
   "dependencies": [
