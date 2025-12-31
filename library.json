@@ -18,10 +18,9 @@
   "frameworks": "*",
   "platforms": "*",
   "build": {
-    "includeDir": "src/include",
+    "includeDir": "src",
     "srcFilter": [
-      "+<src/>",
-      "+<src/include/>"
+      "+<src/>"
     ]
   },
   "dependencies": [
