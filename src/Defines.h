@@ -34,3 +34,29 @@
 
 #define SensorVoltageMin 540 // Mininum output voltage from Sensor in mV (135 * .004 = 540)
 #define SensorVoltageMax 2700 // Maximum output voltage from Sensor in mV (135 * .02 = 2700).
+
+// Modbus setup
+#ifdef HasCoils
+#define CoilsDiv ""
+#else
+#define CoilsDiv "class=\"hidden\""
+#endif
+
+#ifdef HasInputRegisters
+#define InputRegistersDiv ""
+#else
+#define InputRegistersDiv "class=\"hidden\""
+#endif
+
+#ifdef HasDiscretes
+#define DiscretesDiv ""
+#else
+#define DiscretesDiv "class=\"hidden\""
+#endif
+
+#ifdef HoldingRegisters
+#define HoldingRegistersDiv ""
+#else
+#define HoldingRegistersDiv "class=\"hidden\""
+#endif
+
