@@ -1,0 +1,25 @@
+{
+  "name": "IOT_Lib",
+  "version": "1.0.0",
+  "description": "ESP32 IOT library Network, MQTT and Modbus",
+  "keywords": ["esp32", "iot", "utility"],
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/classicdiy/IOT_Lib.git"
+  },
+  "authors": [
+    {
+      "name": "Graham",
+      "url": "https://github.com/classicdiy"
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "esp32async/AsyncTCP": "^3.4.9",
+    "esp32async/ESPAsyncWebServer": "^3.9.3",
+    "bblanchon/ArduinoJson": "^7.4.2"
+  },
+  "frameworks": "*",
+  "platforms": "*"
+}
