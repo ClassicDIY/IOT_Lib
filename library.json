@@ -17,6 +17,13 @@
   "license": "MIT",
   "frameworks": "*",
   "platforms": "*",
+    "build": {
+    "includeDir": "src",
+    "srcFilter": [
+      "+<src/>",
+      "+<include/>"
+    ]
+  },
   "dependencies": [
     {
       "name": "esp32async/AsyncTCP",
