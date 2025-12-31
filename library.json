@@ -15,16 +15,26 @@
     }
   ],
   "license": "MIT",
-"dependencies": {
-    "esp32async/AsyncTCP": "^3.4.9",
-    "esp32async/ESPAsyncWebServer": "^3.9.3",
-    "bblanchon/ArduinoJson": "^7.4.2",
+  "frameworks": "*",
+  "platforms": "*",
+  "dependencies": [
+    {
+      "name": "esp32async/AsyncTCP",
+      "version": "^3.4.9"
+    },
+    {
+      "name": "esp32async/ESPAsyncWebServer",
+      "version": "^3.9.3"
+    },
+    {
+      "name": "bblanchon/ArduinoJson",
+      "version": "^7.4.2"
+    },
     {
       "name": "EEPROM",
       "platforms": ["espressif32"],
       "frameworks": ["arduino"]
     }
-  },
-  "frameworks": "*",
-  "platforms": "*"
+  ]
+
 }
