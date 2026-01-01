@@ -9,7 +9,6 @@
 #ifdef HasModbus
 #include <ModbusServerTCPasync.h>
 #include <ModbusServerRTU.h>
-#include <ModbusClientRTU.h>
 #endif
 #ifdef HasMQTT
 #include "mqtt_client.h"
