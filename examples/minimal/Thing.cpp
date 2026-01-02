@@ -12,12 +12,14 @@ void Thing::Setup() { _iot.Init(this); }
 
 void Thing::onSaveSetting(JsonDocument &doc) {
    doc["_appState"] = _appState;
+   doc["_level"] = _level;
    logd("Save app settings data: %s", formattedJson(doc).c_str());
 }
 
 void Thing::onLoadSetting(JsonDocument &doc) {
    logd("Load app settings data: %s", formattedJson(doc).c_str());
    _appState = doc["_appState"].as<String>();
+   _level = doc["_level"].as<int>();
 }
 
 String Thing::appTemplateProcessor(const String &var) {
@@ -37,6 +39,7 @@ String Thing::appTemplateProcessor(const String &var) {
       String script;
       script += "const gpioValues = JSON.parse(event.data);\n";
       script += "document.getElementById('AppState').innerHTML = gpioValues._appState;\n";
+      script += "document.getElementById('Level').innerHTML = gpioValues._level;\n";
       return script;
    }
    if (var == "app_fields") {
@@ -44,6 +47,9 @@ String Thing::appTemplateProcessor(const String &var) {
    }
    if (var == "state_value") {
       return _appState;
+   }
+   if (var == "level_value") {
+      return String(_level);
    }
    logd("Did not find app template for: %s", var.c_str());
    return String("");
@@ -74,4 +80,6 @@ void Thing::onSocketPong() {
    _lastMessagePublished.clear(); // force a broadcast
 }
 
-void Thing::onNetworkState(NetworkState state) { _networkState = state; }
+void Thing::onNetworkState(NetworkState state) { 
+   _networkState = state; 
+}

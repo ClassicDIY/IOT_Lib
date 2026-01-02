@@ -40,5 +40,6 @@ class Thing : public IOTCallbackInterface {
    String _bodyBuffer;
    NetworkState _networkState = Boot;
    String _appState = "Default text";
+   int _level = 0;
    FakeOled _oled = FakeOled();
 };
