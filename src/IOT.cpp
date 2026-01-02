@@ -28,6 +28,8 @@
 
 namespace CLASSICDIY {
 
+static AsyncWebServer _asyncServer(ASYNC_WEBSERVER_PORT);
+static AsyncWebSocket _webSocket("/ws_home");
 static DNSServer _dnsServer;
 static WebLog _webLog;
 #ifdef HasMQTT
@@ -42,14 +44,13 @@ static AsyncAuthenticationMiddleware basicAuth;
 const char *NetworkSelectionStrings[] = {"", "AP Mode", "WiFi", "Ethernet", "Modem"};
 const char *NetworkStateStrings[] = {"Boot", "Ap State", "Connecting", "OnLine", "OffLine"};
 
-// #pragma region Setup
-void IOT::Init(IOTCallbackInterface *iotCB, AsyncWebServer *pwebServer) {
+// region Setup
+void IOT::Init(IOTCallbackInterface *iotCB) {
    _iotCB = iotCB;
-   _pwebServer = pwebServer;
 #ifdef WIFI_STATUS_PIN
-   pinMode(WIFI_STATUS_PIN,
-           OUTPUT); // use LED for wifi AP status (note:edgeBox shares the LED pin with the serial TX gpio)
+   pinMode(WIFI_STATUS_PIN, OUTPUT); // use LED for wifi AP status (note:edgeBox shares the LED pin with the serial TX gpio)
 #endif
+   logd("Press Boot button (GPIO0) for %d seconds to perform a factory reset", GPIO0_FactoryResetCountdown / 1000);
    pinMode(GPIO_NUM_0, INPUT_PULLUP);
    EEPROM.begin(EEPROM_SIZE);
 #ifdef FACTORY_RESET_PIN // use digital input pin for factory reset
@@ -139,11 +140,11 @@ void IOT::Init(IOTCallbackInterface *iotCB, AsyncWebServer *pwebServer) {
    _uniqueId += chipid[4] << 8;
    _uniqueId += chipid[5];
    _lastBootTimeStamp = millis();
-   _pwebServer->on("/reboot", [this](AsyncWebServerRequest *request) {
+   _asyncServer.on("/reboot", [this](AsyncWebServerRequest *request) {
       RedirectToHome(request);
       _needToReboot = true;
    });
-   _pwebServer->onNotFound([this](AsyncWebServerRequest *request) {
+   _asyncServer.onNotFound([this](AsyncWebServerRequest *request) {
       logv("uri not found! %s", request->url().c_str());
       RedirectToHome(request);
    });
@@ -157,19 +158,17 @@ void IOT::Init(IOTCallbackInterface *iotCB, AsyncWebServer *pwebServer) {
    //     request->send_P(200, "image/x-icon", (const char*)favicon_ico, sizeof(favicon_ico));
    //   });
 
-   _pwebServer->on("/style.css", HTTP_GET, [this](AsyncWebServerRequest *request) {
+   _asyncServer.on("/style.css", HTTP_GET, [this](AsyncWebServerRequest *request) {
 #ifdef UseLittleFS
       if (LittleFS.exists("/style.css")) {
          // Serve from filesystem
          request->send(LittleFS, "/style.css", "text/css");
       }
 #else
-      request->send(200, "text/css", iot_style, [this](const String &var) {
-         return _iotCB->appTemplateProcessor(var);
-      });
+      request->send(200, "text/css", iot_style, [this](const String &var) { return _iotCB->appTemplateProcessor(var); });
 #endif
    });
-   _pwebServer->on("/script.js", HTTP_GET, [this](AsyncWebServerRequest *request) {
+   _asyncServer.on("/script.js", HTTP_GET, [this](AsyncWebServerRequest *request) {
 #ifdef UseLittleFS
       if (LittleFS.exists("/iot_script.js")) {
          // Serve from filesystem
@@ -179,68 +178,66 @@ void IOT::Init(IOTCallbackInterface *iotCB, AsyncWebServer *pwebServer) {
          });
       }
 #else
-      request->send(200, "application/javascript", iot_script, [this](const String &var) {
+         request->send(200, "application/javascript", iot_script, [this](const String &var)
+         {
          logd("script template: %s", var.c_str());
-         return _iotCB->appTemplateProcessor(var);
-      });
+         return _iotCB->appTemplateProcessor(var); });
 #endif
    });
    // Return the /settings web page
-   _pwebServer
-       ->on("/settings", HTTP_GET,
-            [this](AsyncWebServerRequest *request) {
-               request->send(200, "text/html", network_config_top, [this](const String &var) {
-                  // logd("html template: %s", var.c_str());
-                  if (var == "title") {
-                     return _AP_SSID;
-                  }
-                  if (var == "header") {
-                     return _AP_SSID;
-                  }
-                  if (var == "version") {
-                     return String(APP_VERSION);
-                  }
-                  if (var == "iot_fields") {
-                     String fields = network_config;
-                     fields.replace("%n%", _AP_SSID);
-                     fields.replace("%version%", APP_VERSION);
+   _asyncServer
+       .on("/settings", HTTP_GET,
+           [this](AsyncWebServerRequest *request) {
+              request->send(200, "text/html", network_config_top, [this](const String &var) {
+                 // logd("html template: %s", var.c_str());
+                 if (var == "title") {
+                    return _AP_SSID;
+                 }
+                 if (var == "header") {
+                    return _AP_SSID;
+                 }
+                 if (var == "version") {
+                    return String(APP_VERSION);
+                 }
+                 if (var == "iot_fields") {
+                    String fields = network_config;
+                    fields.replace("%n%", _AP_SSID);
+                    fields.replace("%version%", APP_VERSION);
 #ifndef HasEthernet
-                     fields.replace("%ETH%", "class='hidden'");
+                    fields.replace("%ETH%", "class='hidden'");
 #endif
 #ifndef HasLTE
-                     fields.replace("%4G%", "class='hidden'");
+                    fields.replace("%4G%", "class='hidden'");
 #endif
 #ifdef HasMQTT
-                     String mqtt = config_mqtt;
-                     fields += mqtt;
+                    String mqtt = config_mqtt;
+                    fields += mqtt;
 #endif
 #ifdef HasModbus
-                     String modbus = config_modbus;
-                     // hide unused modbus functions
-                     modbus.replace("{inputRegDivClass}", InputRegistersDiv);
-                     modbus.replace("{coilDivClass}", CoilsDiv);
-                     modbus.replace("{discreteDivClass}", DiscretesDiv);
-                     modbus.replace("{holdingRegDivClass}", HoldingRegistersDiv);
-                     fields += modbus;
+                    String modbus = config_modbus;
+                    // hide unused modbus functions
+                    modbus.replace("{inputRegDivClass}", InputRegistersDiv);
+                    modbus.replace("{coilDivClass}", CoilsDiv);
+                    modbus.replace("{discreteDivClass}", DiscretesDiv);
+                    modbus.replace("{holdingRegDivClass}", HoldingRegistersDiv);
+                    fields += modbus;
 #endif
-                     return fields;
-                  }
-                  if (var == "config_links") {
+                    return fields;
+                 }
+                 if (var == "config_links") {
 #ifdef HasOTA
-                     return String(config_links);
+                    return String(config_links);
 #else 
             return String(config_links_no_ota);
 #endif
-                  }
-                  return _iotCB->appTemplateProcessor(var);
-               });
-            })
+                 }
+                 return _iotCB->appTemplateProcessor(var);
+              });
+           })
        .addMiddleware(&basicAuth);
-   _pwebServer->on("/submit", HTTP_POST, [this](AsyncWebServerRequest *request) {
-      logd("/ **************************** submit called with %d args", request->args());
-   });
+   _asyncServer.on("/submit", HTTP_POST, [this](AsyncWebServerRequest *request) { logd("/ **************************** submit called with %d args", request->args()); });
 
-   _pwebServer->on("/iot_fields", HTTP_GET, [this](AsyncWebServerRequest *request) {
+   _asyncServer.on("/iot_fields", HTTP_GET, [this](AsyncWebServerRequest *request) {
       JsonDocument doc;
       saveSettingsToJson(doc);
       logd("HTTP_GET iot_fields: %s", formattedJson(doc).c_str());
@@ -248,7 +245,7 @@ void IOT::Init(IOTCallbackInterface *iotCB, AsyncWebServer *pwebServer) {
       serializeJson(doc, s);
       request->send(200, "text/html", s);
    });
-   _pwebServer->on(
+   _asyncServer.on(
        "/iot_fields", HTTP_POST,
        [this](AsyncWebServerRequest *request) {
           // Called after all chunks are received
@@ -279,7 +276,74 @@ void IOT::Init(IOTCallbackInterface *iotCB, AsyncWebServer *pwebServer) {
              logd("Upload complete!");
           }
        });
+   _asyncServer.addHandler(&_webSocket).addMiddleware([this](AsyncWebServerRequest *request, ArMiddlewareNext next) {
+      // ws.count() is the current count of WS clients: this one is trying to upgrade its HTTP connection
+      if (_webSocket.count() > 1) {
+         // if we have 2 clients or more, prevent the next one to connect
+         request->send(503, "text/plain", "Server is busy");
+      } else {
+         // process next middleware and at the end the handler
+         next();
+      }
+   });
+   _webSocket.onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+      (void)len;
+      if (type == WS_EVT_CONNECT) {
+         client->setCloseClientOnQueueFull(false);
+         client->ping();
+      } else if (type == WS_EVT_DISCONNECT) {
+         // logi("Home Page Disconnected!");
+      } else if (type == WS_EVT_ERROR) {
+         loge("ws error");
+      } else if (type == WS_EVT_PONG) {
+         logd("ws pong");
+         _iotCB->onSocketPong();
+      }
+   });
+   _asyncServer.on("/", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      logd("HTTP_GET /");
+      request->send(200, "text/html", home_html, [this](const String &var) { return _iotCB->appTemplateProcessor(var); });
+   });
+   _asyncServer.on("/appsettings", HTTP_GET, [this](AsyncWebServerRequest *request) {
+      JsonDocument app;
+      _iotCB->onSaveSetting(app);
+      String s;
+      serializeJson(app, s);
+      logd("appsettings: %s", formattedJson(app).c_str());
+      request->send(200, "text/html", s);
+   });
+   _asyncServer.on(
+       "/app_fields", HTTP_POST,
+       [this](AsyncWebServerRequest *request) {
+          // Called after all chunks are received
+          logv("Full body received: %s", _bodyBuffer.c_str());
+          // Parse JSON safely
+          JsonDocument doc; // adjust size to expected payload
+          DeserializationError err = deserializeJson(doc, _bodyBuffer);
+          if (err) {
+             logd("JSON parse failed: %s", err.c_str());
+          } else {
+             logd("app_fields: %s", formattedJson(doc).c_str());
+             _iotCB->onLoadSetting(doc);
+          }
+          request->send(200, "application/json", "{\"status\":\"ok\"}");
+          _bodyBuffer = ""; // clear for next request
+       },
+       NULL, // file upload handler (not used here)
+       [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+          logv("Chunk received: len=%d, index=%d, total=%d", len, index, total);
+          // Append chunk to buffer
+          _bodyBuffer.reserve(total); // reserve once for efficiency
+          for (size_t i = 0; i < len; i++) {
+             _bodyBuffer += (char)data[i];
+          }
+          if (index + len == total) {
+             logd("Upload complete!");
+          }
+       });
 }
+
+void IOT::PostWeb(const String &msg) { _webSocket.textAll(msg); }
 
 void IOT::RedirectToHome(AsyncWebServerRequest *request) {
    // logd("Redirecting from: %s", request->url().c_str());
@@ -450,7 +514,7 @@ void IOT::Run() {
                   setState(Connecting);
                }
             } else {
-#if  defined(Has_OLED) || defined(Has_TFT)
+#ifdef Has_Display
                int countdown = (AP_TIMEOUT - (millis() - _waitInAPTimeStamp)) / 1000;
                if (countdown != _lastCountdown) {
                   _lastCountdown = countdown;
@@ -479,6 +543,20 @@ void IOT::Run() {
    } else if (_networkState == OnLine) {
       _webLog.process();
    }
+#ifdef WIFI_STATUS_PIN
+   // handle blink led, fast : NotConnected slow: AP connected On: Station connected
+   if (_networkState != OnLine) {
+      unsigned long binkRate = _networkState == ApState ? AP_BLINK_RATE : NC_BLINK_RATE;
+      unsigned long now = millis();
+      if (binkRate < now - _lastBlinkTime) {
+         _blinkStateOn = !_blinkStateOn;
+         _lastBlinkTime = now;
+         digitalWrite(WIFI_STATUS_PIN, _blinkStateOn ? HIGH : LOW);
+      }
+   } else {
+      digitalWrite(WIFI_STATUS_PIN, LOW);
+   }
+#endif
    if (digitalRead(GPIO_NUM_0) != LOW) { // GPIO0 pressed for GPIO0_FactoryResetCountdown? initiate a factory reset
       _GPIO0_PressedCountdown = millis();
    }
@@ -497,16 +575,16 @@ void IOT::Run() {
    return;
 }
 
-// #pragma endregion Setup
+// endregion Setup
 
-// #pragma region Network
+// region Network
 
 void IOT::GoOnline() {
    logd("GoOnline called");
-   _pwebServer->begin();
-   _webLog.begin(_pwebServer);
+   _asyncServer.begin();
+   _webLog.begin(&_asyncServer);
 #ifdef HasOTA
-   _OTA.begin(_pwebServer);
+   _OTA.begin(&_asyncServer);
 #endif
    if (_AP_Connected) {
       _dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
@@ -569,7 +647,7 @@ void IOT::setState(NetworkState newState) {
                              : _networkState == OnLine     ? "OnLine"
                                                            : "OffLine");
 
-#if  defined(Has_OLED) || defined(Has_TFT)
+#ifdef Has_Display
    String mode;
    String detail;
    if (_networkState == OnLine) {
@@ -708,8 +786,7 @@ esp_err_t IOT::ConnectEthernet() {
    if ((ret = esp_efuse_mac_get_default(base_mac_addr)) == ESP_OK) {
       uint8_t local_mac_1[6];
       esp_derive_local_mac(local_mac_1, base_mac_addr);
-      logi("ETH MAC: %02X:%02X:%02X:%02X:%02X:%02X", local_mac_1[0], local_mac_1[1], local_mac_1[2], local_mac_1[3], local_mac_1[4],
-           local_mac_1[5]);
+      logi("ETH MAC: %02X:%02X:%02X:%02X:%02X:%02X", local_mac_1[0], local_mac_1[1], local_mac_1[2], local_mac_1[3], local_mac_1[4], local_mac_1[5]);
       eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG(); // Init common MAC and PHY configs to default
       eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
       phy_config.phy_addr = 1;
@@ -867,7 +944,8 @@ void IOT::DisconnectModem() {
 }
 #endif
 
-// #pragma endregion Network
+// endregion Network
+// region Protocol
 
 #ifdef HasModbus
 
@@ -1065,5 +1143,5 @@ String IOT::getRootTopicPrefix() {
 };
 
 #endif
-
+// endregion Protocol
 } // namespace CLASSICDIY

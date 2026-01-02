@@ -12,6 +12,7 @@ namespace CLASSICDIY {
 class IOTCallbackInterface {
  public:
    virtual void onNetworkState(NetworkState state) = 0;
+   virtual void onSocketPong() = 0;
    virtual String appTemplateProcessor(const String &var);
    virtual void onSaveSetting(JsonDocument &doc) = 0;
    virtual void onLoadSetting(JsonDocument &doc) = 0;
@@ -22,7 +23,7 @@ class IOTCallbackInterface {
 #if defined(HasModbus) && defined(HasRS485)
    virtual bool onModbusMessage(ModbusMessage &msg);
 #endif
-#if  defined(Has_OLED) || defined(Has_TFT)
+#ifdef Has_Display
    virtual IDisplayServiceInterface& getDisplayInterface() = 0;
 #endif
 };

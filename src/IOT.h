@@ -26,12 +26,13 @@ namespace CLASSICDIY {
 class IOT : public IOTServiceInterface {
  public:
    IOT() {};
-   void Init(IOTCallbackInterface *iotCB, AsyncWebServer *pwebServer);
+   void Init(IOTCallbackInterface *iotCB);
    void Run();
    u_int getUniqueId() { return _uniqueId; };
    String getThingName();
    NetworkState getNetworkState() { return _networkState; }
    void GoOnline();
+   void PostWeb(const String & msg);
 
 #ifdef HasMQTT
    String getRootTopicPrefix();
@@ -49,7 +50,6 @@ class IOT : public IOTServiceInterface {
 
  private:
    OTA _OTA = OTA();
-   AsyncWebServer *_pwebServer;
    NetworkState _networkState = Boot;
    NetworkSelection _NetworkSelection = APMode;
    bool _blinkStateOn = false;
