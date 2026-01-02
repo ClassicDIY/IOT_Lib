@@ -11,15 +11,16 @@ LOG_TO_SERIAL_PORT  Log to serial port
 WIFI_STATUS_PIN     Led pin, blink led, fast : NotConnected slow: AP connected On: Station connected
 FACTORY_RESET_PIN   Digital input pin for factory reset, used when GPIO0 button is not available
 
-Has_Display         Device has a display
+Has_Display         Device has a display, tft or oled...
 UseLittleFS         HTML pages are store in ESP FS
 HasOTA              Enable OTA link in setup page
 
-HasEthernet         Include Ethernet 
-HasLTE              Include 4G modem
+HasEthernet         Include Ethernet, requires esp-idf framework
+HasLTE              Include 4G modem, requires esp-idf framework
+
 HasMQTT             Enable MQTT
 
-HasModbus           Enable Modbus 
+HasModbus           Enable Modbus, requires miq19/eModbus
 HasCoils            Include Modbus Coils
 HasInputRegisters   Include Modbus Input Registers
 HasDiscretes        Include Modbus Discretes

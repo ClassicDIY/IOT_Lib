@@ -79,3 +79,16 @@ void Thing::onSocketPong() {
 }
 
 void Thing::onNetworkState(NetworkState state) { _networkState = state; }
+
+#ifdef HasMQTT
+
+void Thing::onMqttConnect(esp_mqtt_client_handle_t &client) {
+   if (!_discoveryPublished) {
+      // Publish Discovery ...
+   }
+}
+
+void Thing::onMqttMessage(char *topic, char *payload) {
+   // process incomming MQTT command
+}
+#endif

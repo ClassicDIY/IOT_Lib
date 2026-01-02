@@ -1,4 +1,5 @@
 #include "Log.h"
+#include "WebLog.htm"
 #include "WebLog.h"
 
 static AsyncWebSocket _webSocket("/ws_log");

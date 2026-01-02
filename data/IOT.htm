@@ -22,23 +22,6 @@ const char *redirect_html PROGMEM = R"rawliteral(
     </html>
 )rawliteral";
 
-const char update_html[] PROGMEM = R"rawliteral(
-    <!DOCTYPE html><html lang=\"en\"><head><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, charset=utf-8">
-    <title>Firmware Update</title>
-    </head><body>
-    <h1>Firmware Update</h1>
-    <h1>ESP32 OTA Update</h1>
-    <form method='POST' action='/doupdate' enctype='multipart/form-data'>
-    <input type='file' name='firmware'>
-    </form>
-    <div>
-        Copyright (c) 2025. ClassicDIY</br>
-        The source code is hosted and available on Github at <a href="https://github.com/classicdiy/ESP_PLC" target="_blank">https://github.com/classicdiy/ESP_PLC</a>.</br>
-        The software is provided on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</br>
-    </div>
-    </body></html>
-)rawliteral";
-
 const char network_config_top[] PROGMEM = R"rawliteral(
   <!DOCTYPE html><html lang="en"><head><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <title>%title%</title>
