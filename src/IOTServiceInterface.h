@@ -13,6 +13,8 @@ namespace CLASSICDIY
       virtual void Run();
       virtual void PostWeb(const String &msg);
       virtual String getThingName() = 0;
+      virtual AsyncWebServer& getWebServer();
+
 #ifdef HasMQTT
       // MQTT related methods
       virtual boolean Publish(const char *subtopic, const char *value, boolean retained) = 0;

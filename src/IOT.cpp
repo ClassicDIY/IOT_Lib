@@ -471,6 +471,11 @@ void IOT::saveSettings() {
       logd("******* Need to reboot! ***");
 }
 
+AsyncWebServer& IOT::getWebServer()
+{
+   return _asyncServer;
+}
+
 String IOT::getThingName() { return _AP_SSID; }
 
 void IOT::Run() {

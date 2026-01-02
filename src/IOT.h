@@ -30,6 +30,7 @@ class IOT : public IOTServiceInterface {
    void Run();
    u_int getUniqueId() { return _uniqueId; };
    String getThingName();
+   AsyncWebServer& getWebServer();
    NetworkState getNetworkState() { return _networkState; }
    void GoOnline();
    void PostWeb(const String & msg);
