@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include "Enumerations.h"
+#include "IOTEnumerations.h"
 #include "IOTCallbackInterface.h"
 
 namespace CLASSICDIY

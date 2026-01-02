@@ -17,7 +17,7 @@
 #include <sstream>
 #include <string>
 #include "IOT_Defines.h"
-#include "Enumerations.h"
+#include "IOTEnumerations.h"
 #include "OTA.h"
 #include "IOTServiceInterface.h"
 #include "IOTCallbackInterface.h"

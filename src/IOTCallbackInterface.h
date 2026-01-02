@@ -5,7 +5,7 @@
 #ifdef HasModbus
 #include <ModbusServerTCPasync.h>
 #endif
-#include "Enumerations.h"
+#include "IOTEnumerations.h"
 #include "IDisplayServiceInterface.h"
 
 namespace CLASSICDIY {
