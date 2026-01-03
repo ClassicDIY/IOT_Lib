@@ -12,7 +12,7 @@ namespace CLASSICDIY {
         _pAsyncServer = asyncServer;
         _pAsyncServer->on("/update", HTTP_GET, [](AsyncWebServerRequest *request) {
 			String page = update_firmware_html;
-			page.replace("{n}", TAG);
+			page.replace("{n}", LOG_TAG);
 			page.replace("{v}", APP_VERSION);
 			request->send(200, "text/html", page);
         });

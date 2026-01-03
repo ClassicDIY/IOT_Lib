@@ -5,7 +5,7 @@ Platformio.ini Build Flags to enable feature & configuration
 
 <ul>
 <li>APP_VERSION:         Application version displayed in header</li>
-<li>TAG:                 Log Tag & default thing name</li>
+<li>LOG_TAG:             Log Tag & default thing name</li>
 <li>APP_LOG_LEVEL:       Verbose, Debug, Info, Warn, Error log level</li>
 <li>LOG_TO_SERIAL_PORT:  Log to serial port</li>
 

@@ -354,7 +354,7 @@ void IOT::RedirectToHome(AsyncWebServerRequest *request) {
 }
 
 void IOT::loadSettingsFromJson(JsonDocument &iot) {
-   _AP_SSID = iot["AP_SSID"].isNull() ? TAG : iot["AP_SSID"].as<String>();
+   _AP_SSID = iot["AP_SSID"].isNull() ? LOG_TAG : iot["AP_SSID"].as<String>();
    _AP_Password = iot["AP_Pw"].isNull() ? DEFAULT_AP_PASSWORD : iot["AP_Pw"].as<String>();
    _NetworkSelection = iot["Network"].isNull() ? APMode : iot["Network"].as<NetworkSelection>();
    String ssid = iot["SSID"].isNull() ? "" : iot["SSID"].as<String>();
