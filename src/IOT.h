@@ -54,7 +54,7 @@ class IOT : public IOTServiceInterface {
    NetworkState _networkState = Boot;
    NetworkSelection _NetworkSelection = APMode;
    bool _blinkStateOn = false;
-   String _AP_SSID = LOG_TAG;
+   String _AP_SSID = APP_LOG_TAG;
    String _AP_Password = DEFAULT_AP_PASSWORD;
    bool _AP_Connected = false;
    String _SSID;
