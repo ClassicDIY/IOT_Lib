@@ -294,5 +294,6 @@ const char iot_style[] PROGMEM = R"rawliteral(
         justify-content: center; /* Horizontally center the content */
         font-size:1.5rem;
     }
+    %style%
 </style>
 )rawliteral";
