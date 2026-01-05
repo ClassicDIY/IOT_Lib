@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "GPIO_pins.h"
 #include "driver/gpio.h"
 
 #ifdef __cplusplus
