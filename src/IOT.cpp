@@ -6,6 +6,7 @@
 #include <LittleFS.h>
 #else
 #include "iot_script.js"
+#include "default_app_script.js"
 #include "style.css"
 #endif
 #ifdef HasEthernet
@@ -178,10 +179,18 @@ void IOT::Init(IOTCallbackInterface *iotCB) {
          });
       }
 #else
-         request->send(200, "application/javascript", iot_script, [this](const String &var)
-         {
+      request->send(200, "application/javascript", iot_script, [this](const String &var) {
          logd("script template: %s", var.c_str());
-         return _iotCB->appTemplateProcessor(var); });
+         if (var == "app_script_js") {
+            String app_script = _iotCB->appTemplateProcessor(var);
+            if (app_script.isEmpty()) { // use default app script if not provided by app
+               return String(default_app_script_js);
+            }
+            return app_script;
+         } else {
+            return _iotCB->appTemplateProcessor(var);
+         }
+   });
 #endif
    });
    // Return the /settings web page
@@ -471,10 +480,7 @@ void IOT::saveSettings() {
       logd("******* Need to reboot! ***");
 }
 
-AsyncWebServer& IOT::getWebServer()
-{
-   return _asyncServer;
-}
+AsyncWebServer &IOT::getWebServer() { return _asyncServer; }
 
 String IOT::getThingName() { return _AP_SSID; }
 
