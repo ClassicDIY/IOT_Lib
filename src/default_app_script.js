@@ -1,24 +1,10 @@
 const char default_app_script_js[] PROGMEM = R"rawliteral(
     try {
-        const relayThresholds = [];
-        const fields = document.querySelectorAll("#app_fields .fld");
-
-        fields.forEach(fld  => {
-            const threshold = parseInt(fld.querySelector("input[name='threshold']").value, 10);
-            const textLabel = fld.querySelector("input[name='label']").value;
-
-            relayThresholds.push({
-            threshold: threshold,
-            label: textLabel,
-            active: true
-            });
-        });
-        const payload = { relayThresholds };
-        console.log(payload);
+        const fields = getFormValues("#app_fields input, #app_fields select");
         const res = await fetch('/app_fields', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(fields)
         });
         console.log(await res.text());
         if (!res.ok) throw new Error('Save failed');
