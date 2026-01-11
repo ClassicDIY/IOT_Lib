@@ -175,21 +175,31 @@ void IOT::Init(IOTCallbackInterface *iotCB) {
          // Serve from filesystem
          request->send(LittleFS, "/iot_script.js", "application/javascript", true, [this](const String &var) {
             logd("script template: %s", var.c_str());
-            return _iotCB->appTemplateProcessor(var);
+            String scriptSubs = _iotCB->appTemplateProcessor(var);
+            if (scriptSubs.isEmpty()) { // not provided by app?
+               if (var == "app_script_js") { // use default
+                  scriptSubs = default_app_script_js;
+               }
+               else if (var == "appSelectValues") { // use default
+                  scriptSubs = "el.value = v;";
+               }
+            }
+            return scriptSubs;
          });
       }
 #else
       request->send(200, "application/javascript", iot_script, [this](const String &var) {
          logd("script template: %s", var.c_str());
-         if (var == "app_script_js") {
-            String app_script = _iotCB->appTemplateProcessor(var);
-            if (app_script.isEmpty()) { // use default app script if not provided by app
-               return String(default_app_script_js);
+         String scriptSubs = _iotCB->appTemplateProcessor(var);
+         if (scriptSubs.isEmpty()) { // not provided by app?
+            if (var == "app_script_js") { // use default
+               scriptSubs = default_app_script_js;
             }
-            return app_script;
-         } else {
-            return _iotCB->appTemplateProcessor(var);
+            else if (var == "appSelectValues") { // use default
+               scriptSubs = "el.value = v;";
+            }
          }
+         return scriptSubs;
    });
 #endif
    });

@@ -204,7 +204,7 @@ function setAppValues(cfg, prefix = "") {
             if (el.type === "checkbox") {
                 el.checked = !!v;
             } else if (el.tagName === 'SELECT') {
-                %setClientRTUValues%
+                %appSelectValues%
             } else {
                 el.value = v;
             }
