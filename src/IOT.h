@@ -34,7 +34,7 @@ class IOT : public IOTServiceInterface {
    NetworkState getNetworkState() { return _networkState; }
    void GoOnline();
    void PostWeb(const String & msg);
-   void SaveSettings(bool rebootIfChanged);
+   void SaveAppSettings(bool rebootIfChanged);
 
 #ifdef HasMQTT
    String getRootTopicPrefix();

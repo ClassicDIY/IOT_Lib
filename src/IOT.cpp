@@ -470,6 +470,10 @@ void IOT::saveSettingsToJson(JsonDocument &iot) {
 }
 
 void IOT::saveSettings() {
+   SaveAppSettings(true);
+}
+
+void IOT::SaveAppSettings(bool rebootIfChanged) {
    JsonDocument doc;
    saveSettingsToJson(doc);
    _iotCB->onSaveSetting(doc);
@@ -485,9 +489,14 @@ void IOT::saveSettings() {
    EEPROM.write(jsonString.length(), '\0'); // Null-terminate the string
    EEPROM.commit();
    logd("JSON saved, required EEPROM size: %d", jsonString.length());
-   _needToReboot = _settingsChecksum != sum;
-   if (_needToReboot)
-      logd("******* Need to reboot! ***");
+   if (rebootIfChanged) {
+      _needToReboot = _settingsChecksum != sum;
+      if (_needToReboot)
+         logd("******* Need to reboot! ***");
+   }
+   else {
+      _settingsChecksum = sum;
+   }
 }
 
 AsyncWebServer &IOT::getWebServer() { return _asyncServer; }
