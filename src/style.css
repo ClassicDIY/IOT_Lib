@@ -137,7 +137,7 @@ const char iot_style[] PROGMEM = R"rawliteral(
 
 
     :root {
-        --bg: #233052ff;
+        --bg: #051234;
         --panel: #5f6379ff;
         --text: #e6e6e6;
         --muted: #9aa3ad;
